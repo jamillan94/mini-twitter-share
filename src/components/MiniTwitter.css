@@ -1,0 +1,118 @@
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #F4F6F9; /* Fondo gris claro */
+    color: #333333; /* Texto gris oscuro */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Contenedor principal */
+.container {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 400px;
+    max-width: 90%;
+}
+
+/* Título principal */
+h1 {
+    color: #004481; /* Azul oscuro */
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+/* Inputs de texto */
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #00A9E0; /* Azul claro */
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* Botón de publicar */
+button {
+    width: 100%;
+    background-color: #004481; /* Azul oscuro */
+    color: #FFFFFF;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #003366; /* Un azul más oscuro al hacer hover */
+}
+
+/* Lista de tweets */
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    background-color: #F4F6F9; /* Fondo gris claro */
+    border: 1px solid #00A9E0; /* Azul claro */
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+p {
+    margin: 0 0 5px 0;
+}
+
+small {
+    color: #666666; /* Texto gris más claro para la fecha */
+}
+
+/* Input de respuesta */
+.reply-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #00A9E0;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+/* Botón de respuesta */
+.reply-button {
+    width: 100%;
+    background-color: #00A9E0; /* Azul claro */
+    color: #FFFFFF;
+    border: none;
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 5px;
+    transition: background-color 0.3s;
+}
+
+.reply-button:hover {
+    background-color: #0085b5; /* Un azul más oscuro al hacer hover */
+}
+
+/* Respuestas */
+.replies {
+    margin-top: 10px;
+    padding-left: 20px;
+}
+
+.reply {
+    font-size: 14px;
+    color: #004481; /* Azul oscuro */
+}
