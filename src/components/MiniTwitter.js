@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import AWS from 'aws-sdk';
 import './MiniTwitter.css'; // Importamos el archivo CSS
 
-// Configurar las credenciales de AWS manualmente para el entorno local
-AWS.config.update({
-    accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,  // Usar variables de entorno
-    secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
-    region: process.env.REACT_APP_AWS_REGION  // Asegúrate de que esta es la región donde tienes las Lambdas
-});
-
-const lambda = new AWS.Lambda();
+// URL base de tu API Gateway
+const apiUrl = 'https://zrt7gm51w6.execute-api.us-east-1.amazonaws.com/MiniTwitterApi';
 
 const MiniTwitter = () => {
     const [tweets, setTweets] = useState([]);  // Maneja la lista de tweets
@@ -17,26 +10,34 @@ const MiniTwitter = () => {
     const [author, setAuthor] = useState('');  // Maneja el autor del tweet
     const [replies, setReplies] = useState({}); // Maneja las respuestas por cada tweet
 
-    // Función para obtener los tweets desde Lambda
+    // Función para obtener los tweets desde la API
     const fetchTweets = async () => {
-        const params = {
-            FunctionName: 'GetTweetsFunction',
-            InvocationType: 'RequestResponse',
-        };
-
         try {
-            const data = await lambda.invoke(params).promise();
-            const response = JSON.parse(data.Payload);  // Parsear la respuesta desde Lambda
-            
-            if (response.body) {
-                const tweets = JSON.parse(response.body);  // Parsear el body que contiene los tweets
-                console.log('Datos obtenidos de Lambda:', tweets);
-                setTweets(tweets);  // Actualizar el estado con los tweets obtenidos
+            const response = await fetch(`${apiUrl}/get-tweets`);
+            if (response.ok) {
+                const responseData = await response.json();
+                
+                // Parsear el cuerpo de la respuesta si está presente
+                if (responseData.body) {
+                    const tweets = JSON.parse(responseData.body);  // Parsear el body que contiene los tweets como string
+                    if (Array.isArray(tweets)) {
+                        console.log('Datos obtenidos de Lambda:', tweets);
+                        setTweets(tweets);  // Actualizar el estado con los tweets obtenidos
+                    } else {
+                        console.error('La respuesta no contiene un array:', tweets);
+                        setTweets([]);  // En caso de error, dejar tweets vacío
+                    }
+                } else {
+                    console.error('Formato de respuesta inesperado:', responseData);
+                    setTweets([]);  // En caso de error, dejar tweets vacío
+                }
             } else {
-                console.error('Formato de respuesta inesperado:', response);
+                console.error('Error obteniendo los tweets:', response.statusText);
+                setTweets([]);  // En caso de error, dejar tweets vacío
             }
         } catch (error) {
             console.error('Error obteniendo los tweets:', error);
+            setTweets([]);  // En caso de error, dejar tweets vacío
         }
     };
 
@@ -46,16 +47,20 @@ const MiniTwitter = () => {
 
     // Función para crear un nuevo tweet
     const createTweet = async () => {
-        const params = {
-            FunctionName: 'CreateTweetFunction',  // Lambda para crear un tweet
-            InvocationType: 'RequestResponse',  // Asegura que espera una respuesta
-            Payload: JSON.stringify({
-                body: JSON.stringify({ content: newTweet, author })  // Pasar el contenido y el autor del tweet
-            })
+        const payload = {
+            body: JSON.stringify({ content: newTweet, author })
         };
 
         try {
-            const result = await lambda.invoke(params).promise();
+            const response = await fetch(`${apiUrl}/create-tweet`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
             console.log('Tweet creado:', result);  // Verificar el resultado en la consola
             fetchTweets();  // Volver a obtener los tweets después de crear uno nuevo
         } catch (error) {
@@ -76,16 +81,20 @@ const MiniTwitter = () => {
         const replyContent = replies[tweetId];  // Obtener la respuesta escrita para este tweet
         const replier = author;  // El autor de la respuesta será el mismo autor de los tweets
 
-        const params = {
-            FunctionName: 'ReplyToTweetFunction',  // Lambda para responder al tweet
-            InvocationType: 'RequestResponse',  // Asegura que espera una respuesta
-            Payload: JSON.stringify({
-                body: JSON.stringify({ tweetId, replyContent, replier })
-            })
+        const payload = {
+            body: JSON.stringify({ tweetId, replyContent, replier })
         };
 
         try {
-            const result = await lambda.invoke(params).promise();
+            const response = await fetch(`${apiUrl}/reply-tweet`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
             console.log('Respuesta añadida:', result);  // Verificar el resultado en la consola
             fetchTweets();  // Volver a obtener los tweets después de responder
         } catch (error) {
